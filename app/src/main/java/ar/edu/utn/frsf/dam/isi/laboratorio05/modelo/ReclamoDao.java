@@ -12,6 +12,9 @@ public interface ReclamoDao {
     @Query("SELECT * FROM Reclamo")
     List<Reclamo> getAll();
 
+    @Query("SELECT * FROM Reclamo WHERE id = :pIdReclamo")
+    Reclamo getById(int pIdReclamo);
+
     @Insert
     long insert(Reclamo r);
 
