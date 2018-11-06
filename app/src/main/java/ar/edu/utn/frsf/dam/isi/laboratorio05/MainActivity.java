@@ -11,7 +11,9 @@ import android.view.MenuItem;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
+public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener ,
+        NuevoReclamoFragment.OnNuevoLugarListener ,
+        MapaFragment.OnMapaListener{
     private DrawerLayout drawerLayout;
     private NavigationView navView;
 
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                                 fragment =  getSupportFragmentManager().findFragmentByTag(tag);
                                 if(fragment==null) {
                                     fragment = new NuevoReclamoFragment();
-                                    ((NuevoReclamoFragment) fragment).setListener(listenerReclamo);
+                                    ((NuevoReclamoFragment) fragment).setListener(MainActivity.this);
                                 }
 
                                 fragmentTransaction = true;
@@ -65,7 +67,19 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                                 fragmentTransaction = true;
                                 break;
                             case R.id.optHeatMap:
-                                Log.d("NavigationView", "Pulsada opción 1");
+                                tag="mapaReclamos";
+                                fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+                                if(fragment==null) fragment = new MapaFragment();
+                                Bundle bundle1 = new Bundle();
+                                bundle1.putInt("tipo_mapa",3);
+                                fragment.setArguments(bundle1);
+                                fragmentTransaction = true;
+                                break;
+                            case R.id.optFormBusqueda:
+                                tag="formBusqueda";
+                                fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+                                if(fragment==null) fragment = new BusquedaFragment();
+                                fragmentTransaction = true;
                                 break;
                         }
 
@@ -108,14 +122,13 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         getSupportActionBar().setDisplayHomeAsUpEnabled(canback);
     }
 
-    MapaFragment.OnMapaListener listenerMapa = new MapaFragment.OnMapaListener() {
         @Override
         public void coordenadasSeleccionadas(LatLng c) {
             String tag = "nuevoReclamoFragment";
             Fragment fragment =  getSupportFragmentManager().findFragmentByTag(tag);
             if(fragment==null) {
                 fragment = new NuevoReclamoFragment();
-                ((NuevoReclamoFragment) fragment).setListener(listenerReclamo);
+                ((NuevoReclamoFragment) fragment).setListener(MainActivity.this);
             }
             Bundle bundle = new Bundle();
             bundle.putString("latLng",c.latitude+";"+c.longitude);
@@ -123,13 +136,10 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.contenido, fragment,tag)
-                    .addToBackStack(null)
                     .commit();
 
         }
-    };
 
-    NuevoReclamoFragment.OnNuevoLugarListener listenerReclamo = new NuevoReclamoFragment.OnNuevoLugarListener() {
         @Override
         public void obtenerCoordenadas() {
             String tag="mapaReclamos";
@@ -138,12 +148,10 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
             Bundle bundle = new Bundle();
             bundle.putInt("tipo_mapa",2);
             fragment.setArguments(bundle);
-            ((MapaFragment) fragment).setListener(listenerMapa);
+            ((MapaFragment) fragment).setListener(MainActivity.this);
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.contenido, fragment,tag)
-                    .addToBackStack(null)
                     .commit();
         }
-    };
 }

@@ -52,27 +52,34 @@ public class NuevoReclamoFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        Bundle bundle=getArguments();
-        int idReclamo =0;
-        String coordenadas = "0;0";
-        if(bundle!=null)  {
-            idReclamo = bundle.getInt("idReclamo",0);
-            coordenadas = bundle.getString("latLng","0;0");
-        }
-        cargarReclamo(idReclamo);
         reclamoDao = MyDatabase.getInstance(this.getActivity()).getReclamoDao();
 
         View v = inflater.inflate(R.layout.fragment_nuevo_reclamo, container, false);
+
         reclamoDesc = (EditText) v.findViewById(R.id.reclamo_desc);
         mail= (EditText) v.findViewById(R.id.reclamo_mail);
         tipoReclamo= (Spinner) v.findViewById(R.id.reclamo_tipo);
         tvCoord= (TextView) v.findViewById(R.id.reclamo_coord);
-        tvCoord.setText(coordenadas);
         buscarCoord= (Button) v.findViewById(R.id.btnBuscarCoordenadas);
         btnGuardar= (Button) v.findViewById(R.id.btnGuardar);
+
         tipoReclamoAdapter = new ArrayAdapter<Reclamo.TipoReclamo>(getActivity(),android.R.layout.simple_spinner_item,Reclamo.TipoReclamo.values());
+        tipoReclamoAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tipoReclamo.setAdapter(tipoReclamoAdapter);
+
+        int idReclamo =0;
+        if(getArguments()!=null)  {
+            idReclamo = getArguments().getInt("idReclamo",0);
+        }
+
+        cargarReclamo(idReclamo);
+
+
+        boolean edicionActivada = !tvCoord.getText().toString().equals("0;0");
+        reclamoDesc.setEnabled(edicionActivada );
+        mail.setEnabled(edicionActivada );
+        tipoReclamo.setEnabled(edicionActivada);
+        btnGuardar.setEnabled(edicionActivada);
 
         buscarCoord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +123,9 @@ public class NuevoReclamoFragment extends Fragment {
             Thread t1 = new Thread(hiloCargaDatos);
             t1.start();
         }else{
+            String coordenadas = "0;0";
+            if(getArguments()!=null) coordenadas = getArguments().getString("latLng","0;0");
+            tvCoord.setText(coordenadas);
             reclamoActual = new Reclamo();
         }
 
@@ -143,6 +153,7 @@ public class NuevoReclamoFragment extends Fragment {
                         mail.setText(R.string.texto_vacio);
                         tvCoord.setText(R.string.texto_vacio);
                         reclamoDesc.setText(R.string.texto_vacio);
+                        getActivity().getFragmentManager().popBackStack();
                     }
                 });
             }

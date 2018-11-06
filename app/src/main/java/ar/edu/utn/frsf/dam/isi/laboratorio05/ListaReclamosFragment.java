@@ -81,7 +81,16 @@ public class ListaReclamosFragment extends Fragment {
 
         @Override
         public void mostrarMapa(int id) {
-
+            MapaFragment f = new MapaFragment ();
+            // Supply index input as an argument.
+            Bundle args = new Bundle();
+            args.putInt("tipo_mapa",5);
+            args.putInt("idReclamo",id);
+            f.setArguments(args);
+            getActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.contenido, f)
+                    .commit();
         }
     };
 

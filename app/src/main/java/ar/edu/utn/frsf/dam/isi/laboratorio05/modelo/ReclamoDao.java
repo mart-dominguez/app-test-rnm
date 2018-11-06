@@ -12,6 +12,9 @@ public interface ReclamoDao {
     @Query("SELECT * FROM Reclamo")
     List<Reclamo> getAll();
 
+    @Query("SELECT * FROM Reclamo WHERE tipo = :pTipo")
+    List<Reclamo> getByTipo(String pTipo);
+
     @Query("SELECT * FROM Reclamo WHERE id = :pIdReclamo")
     Reclamo getById(int pIdReclamo);
 

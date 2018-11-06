@@ -66,6 +66,13 @@ public class ReclamoArrayAdapter extends ArrayAdapter<Reclamo> {
         });
 
         btnVerMapa.setTag(aux.getId());
+        btnVerMapa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int id = Integer.valueOf(view.getTag().toString());
+                listenerOnReclamo.mostrarMapa(id);
+            }
+        });
         return v;
     }
 }
