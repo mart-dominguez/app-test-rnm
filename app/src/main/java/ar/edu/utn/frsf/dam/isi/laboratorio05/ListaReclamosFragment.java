@@ -75,7 +75,7 @@ public class ListaReclamosFragment extends Fragment {
                     completeMessage.sendToTarget();
                 }
             };
-            Thread t1 = new Thread();
+            Thread t1 = new Thread(r);
             t1.start();
         }
 

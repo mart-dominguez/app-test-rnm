@@ -24,6 +24,14 @@ import ar.edu.utn.frsf.dam.isi.laboratorio05.modelo.ReclamoDao;
 
 public class NuevoReclamoFragment extends Fragment {
 
+    public interface OnNuevoLugarListener {
+        public void obtenerCoordenadas();
+    }
+
+    public void setListener(OnNuevoLugarListener listener) {
+        this.listener = listener;
+    }
+
     private Reclamo reclamoActual;
     private ReclamoDao reclamoDao;
 
@@ -33,6 +41,8 @@ public class NuevoReclamoFragment extends Fragment {
     private TextView tvCoord;
     private Button buscarCoord;
     private Button btnGuardar;
+    private OnNuevoLugarListener listener;
+
     private ArrayAdapter<Reclamo.TipoReclamo> tipoReclamoAdapter;
     public NuevoReclamoFragment() {
         // Required empty public constructor
@@ -45,7 +55,11 @@ public class NuevoReclamoFragment extends Fragment {
 
         Bundle bundle=getArguments();
         int idReclamo =0;
-        if(bundle!=null)  idReclamo = bundle.getInt("idReclamo",0);
+        String coordenadas = "0;0";
+        if(bundle!=null)  {
+            idReclamo = bundle.getInt("idReclamo",0);
+            coordenadas = bundle.getString("latLng","0;0");
+        }
         cargarReclamo(idReclamo);
         reclamoDao = MyDatabase.getInstance(this.getActivity()).getReclamoDao();
 
@@ -54,6 +68,7 @@ public class NuevoReclamoFragment extends Fragment {
         mail= (EditText) v.findViewById(R.id.reclamo_mail);
         tipoReclamo= (Spinner) v.findViewById(R.id.reclamo_tipo);
         tvCoord= (TextView) v.findViewById(R.id.reclamo_coord);
+        tvCoord.setText(coordenadas);
         buscarCoord= (Button) v.findViewById(R.id.btnBuscarCoordenadas);
         btnGuardar= (Button) v.findViewById(R.id.btnGuardar);
         tipoReclamoAdapter = new ArrayAdapter<Reclamo.TipoReclamo>(getActivity(),android.R.layout.simple_spinner_item,Reclamo.TipoReclamo.values());
@@ -62,7 +77,7 @@ public class NuevoReclamoFragment extends Fragment {
         buscarCoord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                listener.obtenerCoordenadas();
             }
         });
 
@@ -113,7 +128,7 @@ public class NuevoReclamoFragment extends Fragment {
         if(tvCoord.getText().toString().length()>0 && tvCoord.getText().toString().contains(";")) {
             String[] coordenadas = tvCoord.getText().toString().split(";");
             reclamoActual.setLatitud(Double.valueOf(coordenadas[0]));
-            reclamoActual.setLatitud(Double.valueOf(coordenadas[1]));
+            reclamoActual.setLongitud(Double.valueOf(coordenadas[1]));
         }
         Runnable hiloActualizacion = new Runnable() {
             @Override

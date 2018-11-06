@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 
+import com.google.android.gms.maps.model.LatLng;
+
 public class MainActivity extends AppCompatActivity implements FragmentManager.OnBackStackChangedListener {
     private DrawerLayout drawerLayout;
     private NavigationView navView;
@@ -35,17 +37,32 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
 
                         boolean fragmentTransaction = false;
                         Fragment fragment = null;
-
+                        String tag = "";
                         switch (menuItem.getItemId()) {
                             case R.id.optNuevoReclamo:
-                                fragment = new NuevoReclamoFragment();
+                                tag = "nuevoReclamoFragment";
+                                fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+                                if(fragment==null) {
+                                    fragment = new NuevoReclamoFragment();
+                                    ((NuevoReclamoFragment) fragment).setListener(listenerReclamo);
+                                }
+
                                 fragmentTransaction = true;
                                 break;
                             case R.id.optListaReclamo:
-                                fragment = new ListaReclamosFragment();
+                                tag="listaReclamos";
+                                fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+                                if(fragment==null) fragment = new ListaReclamosFragment();
                                 fragmentTransaction = true;
                                 break;
                             case R.id.optVerMapa:
+                                tag="mapaReclamos";
+                                fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+                                if(fragment==null) fragment = new MapaFragment();
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("tipo_mapa",1);
+                                fragment.setArguments(bundle);
+                                fragmentTransaction = true;
                                 break;
                             case R.id.optHeatMap:
                                 Log.d("NavigationView", "Pulsada opción 1");
@@ -55,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
                         if(fragmentTransaction) {
                             getSupportFragmentManager()
                                     .beginTransaction()
-                                    .replace(R.id.contenido, fragment)
+                                    .replace(R.id.contenido, fragment,tag)
                                     .addToBackStack(null)
                                     .commit();
 
@@ -90,4 +107,43 @@ public class MainActivity extends AppCompatActivity implements FragmentManager.O
         boolean canback = getSupportFragmentManager().getBackStackEntryCount()>0;
         getSupportActionBar().setDisplayHomeAsUpEnabled(canback);
     }
+
+    MapaFragment.OnMapaListener listenerMapa = new MapaFragment.OnMapaListener() {
+        @Override
+        public void coordenadasSeleccionadas(LatLng c) {
+            String tag = "nuevoReclamoFragment";
+            Fragment fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+            if(fragment==null) {
+                fragment = new NuevoReclamoFragment();
+                ((NuevoReclamoFragment) fragment).setListener(listenerReclamo);
+            }
+            Bundle bundle = new Bundle();
+            bundle.putString("latLng",c.latitude+";"+c.longitude);
+            fragment.setArguments(bundle);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.contenido, fragment,tag)
+                    .addToBackStack(null)
+                    .commit();
+
+        }
+    };
+
+    NuevoReclamoFragment.OnNuevoLugarListener listenerReclamo = new NuevoReclamoFragment.OnNuevoLugarListener() {
+        @Override
+        public void obtenerCoordenadas() {
+            String tag="mapaReclamos";
+            Fragment fragment =  getSupportFragmentManager().findFragmentByTag(tag);
+            if(fragment==null) fragment = new MapaFragment();
+            Bundle bundle = new Bundle();
+            bundle.putInt("tipo_mapa",2);
+            fragment.setArguments(bundle);
+            ((MapaFragment) fragment).setListener(listenerMapa);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.contenido, fragment,tag)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    };
 }
